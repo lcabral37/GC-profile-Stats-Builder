@@ -1,12 +1,12 @@
 //
-//  (C) Copyright 2011 Luis Cabral.
+//  (C) Copyright 2011-2012 Luis Cabral.
 //
 // ==UserScript==
 // @name	GC Profile Stats Builder ER
 // @description	Generates a profile with statistics that you can past into your profile
 // @include http://www.geocaching.com/*
 // @license	MIT License; http://www.opensource.org/licenses/mit-license.php
-// @version 0.82
+// @version 0.83
 // @icon http://s16.postimage.org/b2eolul5d/gcpsb.png
 // @require  http://github.com/sizzlemctwizzle/GM_config/raw/master/gm_config.js
 // ==/UserScript==
@@ -16,7 +16,7 @@
 
  CHANGE LOG
 
- --- version 0.82
+ --- version 0.83
  * Fixed icon. :-(
 
  --- version 0.81
@@ -97,8 +97,65 @@
  --- 
 */
 
-var version= "0.73";
+var version= "0.83";
 var SUC_script_num = 106499;
+
+// Configuration dialogue.
+var configStyle = <><![CDATA[
+  .config_var {text-align: center; padding-top: 5px;}
+  .field_label {padding-left: 5px;}
+  .reset {display: none;}
+  #GM_config_Current_var {padding-top: 15px;}
+  #GM_config_field_Current {display: none;}
+  #currentFmt {font-weight: normal; color: red;}
+]]></>.toString();
+
+// Date formats available on geocaching.com.
+var dateFormats = ['yyyy-mm-dd', 'yyyy/mm/dd', 'mm/dd/yyyy', 'dd/mm/yyyy', 'dd/mmm/yyyy', 'mmm/dd/yyyy', 'dd mmm yy'];
+var prefDate = GM_getValue("GCS_date_format");
+// Default to mm/dd/yyyy if the pref is not yet set.
+var dateFormat = prefDate ? prefDate : 2;
+
+GM_config.init('GC Profile Stats Builder',
+  /* Fields object */ 
+  {
+   	'DateFormat':
+  	{
+      'section': ['Date Format Setting', 'Set the date format to match that set in your account preferences.'],
+  		'label': 'Date Format', // Appears next to field
+     	'type': 'select', // A drop-down select type
+    	'options': [dateFormats[0], dateFormats[1], dateFormats[2], dateFormats[3], dateFormats[4], dateFormats[5], dateFormats[6]], // List of possible options
+     	'default': 'mm/dd/yyyy'
+  	},
+  	'Current':
+  	{
+  		'label': 'Current Format: <span id="currentFmt">' + dateFormats[dateFormat] + '</span>',
+  		'type': 'text',
+  		'default': ''
+  	}
+  },
+  configStyle,
+  {
+    open: function() {
+      GM_config.addBorder(); // add a fancy border
+      GM_config.resizeFrame('400px','230px'); // resize the config window
+      GM_config.center();
+    },
+    save: function() {
+      GM_setValue('GCS_date_format', GM_config.get('DateFormat'));
+      location.reload();
+    } // reload the page when configuration was changed
+  }
+);
+
+GM_registerMenuCommand("GC Profile Stats Builder", function() {
+  GM_config.open()
+}, 'p');
+
+// First run, no pref. set, prompt.
+if(!prefDate){
+  GM_config.open();  
+}
 
 
 function parseHTML(data){
@@ -120,7 +177,26 @@ function parseHTML(data){
 
     }catch(e){}
     try{//DATE
-      var date = row[DATE].match(/(\d+\/\d+\/\d+)/)[1];
+      var date;
+      switch(dateFormat){
+        case '0':   // yyyy-mm-dd
+          date = row[DATE].match(/(\d+-\d+-\d+)/)[1];
+          break;
+        case '1':   // yyyy/mm/dd
+        case '2':   // mm/dd/yyyy
+        case '3':   // dd/mm/yyyy
+          date = row[DATE].match(/(\d+\/\d+\/\d+)/)[1];
+          break;
+        case '4':   // dd/mmm/yyyy
+          date = row[DATE].match(/(\d\d\/\w\w\w\/\d\d\d\d)/)[1];
+          break;
+        case '5':   // mmm/dd/yyyy
+          date = row[DATE].match(/(\w\w\w\/\d\d\/\d\d\d\d)/)[1];
+          break;
+        case '6':   // dd mmm yy
+          date = row[DATE].match(/(\d\d \w\w\w \d\d)/)[1];
+          break;
+      }
       stats[DATE][date] = stats[DATE][date] ? stats[DATE][date] + 1 : 1;
     }catch(e){}
     try{ //TYPE
@@ -208,6 +284,42 @@ function drawDates(){
   top[YEAR] =0;
   var color_class = ['ccccff', 'ccffff', 'ccffcc', '66cc33'];
   var chd='';
+  
+  // Get date format.
+  var m, y;
+  var splitChar = '/';
+  switch(dateFormat){
+    case '0':   // yyyy-mm-dd
+      m = 1;
+      y = 0;
+      splitChar = '-';
+      break;
+    case '1':   // yyyy/mm/dd
+      m = 1;
+      y = 0;
+      break;
+    case '3':   // dd/mm/yyyy
+      m = 1;
+      y = 2;
+      break;
+    case '4':   // dd/mmm/yyyy
+      m = 1;
+      y = 2;
+      break;
+    case '5':   // mmm/dd/yyyy
+      m = 0;
+      y = 2;
+      break;
+    case '6':   // dd mmm yy
+      m = 1;
+      y = 2;
+      splitChar = ' ';
+      break;
+    default:    // mm/dd/yyyy
+      m = 0;
+      y = 2;
+      break;
+  }
    
   var c=0;
   for( var i in stats[DATE]){
@@ -215,15 +327,22 @@ function drawDates(){
 
     if(top[DAY]<v) top[DAY]=v;
 
-    var d = i.split ("/");
-console.log(i);
-    d[0] = parseInt(d[0],10);
-console.log(d[0]);
-    dates[d[2]] = dates[d[2]] ? dates[d[2]] +v :v;
-    var my =d[0]+'.'+d[2]; // temp var for month.year
+    var d = i.split (splitChar);
+    // Convert 3 char month abbreviations to numbers.
+    if(dateFormat >= 4){
+      // TODO: We probably need to localize this.
+      d[m] = months.indexOf(d[m]);
+      // Change 2-digit years to 4 digits.
+      if(dateFormat == 6){
+        d[y] = parseInt(d[y], 10) + 2000;        
+      }
+    }
+    d[m] = parseInt(d[m],10);
+    dates[d[y]] = dates[d[y]] ? dates[d[y]] +v :v;
+    var my =d[m]+'.'+d[y]; // temp var for month.year
     dates[my] = dates[my] ? dates[my] +v :v;
 
-    if(first_year > d[2]) first_year = d[2]; 
+    if(first_year > d[y]) first_year = d[y]; 
     if(dates[my] > top[MONTH]) top[MONTH] = dates[my];
     if(dates[d[2]] > top[YEAR]) top[YEAR] = dates[d[2]];
   }
@@ -236,7 +355,6 @@ console.log(d[0]);
   for(var j=1; j<=12; j++){ table+= "<th>"+ months[j]+"</th>"}
   table+="<th>Total</th></tr>";
 
-// console.log(dates);
   for (var i =first_year; i<= year; i++ ){
     table += "<tr><th>"+i+"</th>";
     for(var j = 1; j<=12; j++){
@@ -248,8 +366,6 @@ console.log(d[0]);
       if(v==0 && chd=='') continue;
       if(i == year && j > month) continue;
       chd += (chd=='' ? '': ',' ) + parseInt(v/top[MONTH]*100);
-console.log(v);
-console.log(chd);
       if(v>0) chd_sum += v;
       chm += (chm=='' ? '': ',' ) + (chd_sum);
       chxl += '|' + (j==1? i: months[j].charAt(0));
@@ -260,7 +376,6 @@ console.log(chd);
   table+="</table>";
   var img_months = "https://chart.googleapis.com/chart?cht=bvs&chbh=a&chs=600x150&chxp=0&chxt=x,y&chd=t:"+chd+"&chxl="+chxl + "&chxr=1,0,"+top[MONTH];
   var img_sum =  'https://chart.googleapis.com/chart?cht=lc&chbh=a&chs=600x150&chxp=0&chxt=x,y&chm=B,76A4FB,0,0,0&chd=t:'+chm +"&chxl="+chxl + "&chxr=1,0,"+chd_sum;
- console.log(img_sum);
 
   t+=table+"<div><img src='"+img_months+"'></div><br>"; 
   t+="<center><b>Accumulated Progress</b></center><br><img src='"+img_sum+"'>";
@@ -350,7 +465,7 @@ function drawAchievements(){
   // total caches
   var tc='';
   te+=8;
-  for each(var i in [100,250, 500,1000,2000,3000,4000,5000,10000]){
+  for each(var i in [100,250,500,1000,2000,3000,4000,5000,10000]){
     if (i <= top[TOTAL_CACHES]){
       if (!all) tc='';
       ta++;
@@ -645,27 +760,4 @@ initStats();
  alert(e)
 }
 updateCheck(forced);
-
-// GM_registerMenuCommand("GC Profile Date Format", function() {
-// 	var newServer = window
-// 			.prompt("TEST.");
-// 	if ((newServer != null) && (newServer != "")) {
-// 		GM_setValue("gccServer", newServer);
-// 	}
-// }, 'p');
-
-GM_config.init(
-/* Fields object */ 
-{
-	'Name':
-	{
-		'label': 'Name', // Appears next to field
-		'type': 'text', // Makes this setting a text field
-		'default': 'Joe Simmons' // Default value if user doesn't change it
-	}
-});
-
-GM_registerMenuCommand("GC Profile Stats Builder Date Format", function() {
-  GM_config.open()
-}, 'p');
 
