@@ -6,7 +6,7 @@
 // @description	Generates a profile with statistics that you can past into your profile
 // @include http://www.geocaching.com/*
 // @license	MIT License; http://www.opensource.org/licenses/mit-license.php
-// @version 0.83
+// @version 0.84
 // @icon http://s16.postimage.org/b2eolul5d/gcpsb.png
 // @require  http://github.com/sizzlemctwizzle/GM_config/raw/master/gm_config.js
 // ==/UserScript==
@@ -16,6 +16,10 @@
 
  CHANGE LOG
 
+ --- version 0.84
+ * The last version was also trashed. :-(
+ * Something went horribly wrong during the 0.81/82 updates. 
+ 
  --- version 0.83
  * The last version was trashed. :-(
  
@@ -29,6 +33,10 @@
  * Temporary release until Luis reappears.
  * Fixed date formats.
  * Added config. dialogue.  
+
+ --- version 0.74
+  * Added the ability to display stats regardless of the date format selected on geocaching.com.
+  * Added a prefs dialogue to allow the user to select the data format expected by the script.
 
  --- version 0.73
   * Fix region map to appears
@@ -100,8 +108,8 @@
  --- 
 */
 
-var version= "0.83";
-var SUC_script_num = 106499;
+var version= "0.84";
+var SUC_script_num = 131166;
 
 // Configuration dialogue.
 var configStyle = <><![CDATA[
