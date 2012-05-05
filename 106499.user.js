@@ -3,11 +3,11 @@
 //
 // ==UserScript==
 // @name	GC Profile Stats Builder ER
-// @description	Generates a profile with statistics that you can past into your profile
+// @description	Generates statistics that you can past into your profile.
 // @include http://www.geocaching.com/*
 // @license	MIT License; http://www.opensource.org/licenses/mit-license.php
-// @version 0.85
-// @icon http://s16.postimage.org/b2eolul5d/gcpsb.png
+// @version 0.86
+// @icon http://s18.postimage.org/za0ncpqk5/gcpsb.png
 // @require  http://github.com/sizzlemctwizzle/GM_config/raw/master/gm_config.js
 // @require http://userscripts.org/scripts/source/50018.user.js
 // ==/UserScript==
@@ -16,6 +16,9 @@
 /*
 
  CHANGE LOG
+
+ --- version 0.86
+ * Made image background transparent.
 
  --- version 0.85
  * Finally got it back in shape.
@@ -112,7 +115,7 @@
  --- 
 */
 
-var version= "0.85";
+var version= "0.86";
 var SUC_script_num = 131166;
 
 // Configuration dialogue.
