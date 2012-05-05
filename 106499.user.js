@@ -17,6 +17,9 @@
  CHANGE LOG
 
  --- version 0.83
+ * The last version was trashed. :-(
+ 
+ --- version 0.82
  * Fixed icon. :-(
 
  --- version 0.81
