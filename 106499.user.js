@@ -6,7 +6,8 @@
 // @description	Generates a profile with statistics that you can past into your profile
 // @include http://www.geocaching.com/*
 // @license	MIT License; http://www.opensource.org/licenses/mit-license.php
-// @version 0.8
+// @version 0.81
+// @icon http://postimage.org/image/b2eolul5d/gcpsb.png
 // @require  http://github.com/sizzlemctwizzle/GM_config/raw/master/gm_config.js
 // ==/UserScript==
 
@@ -14,6 +15,9 @@
 /*
 
  CHANGE LOG
+
+ --- version 0.81
+ * Added icon.
 
  --- version 0.8
  * Temporary release until Luis reappears.
