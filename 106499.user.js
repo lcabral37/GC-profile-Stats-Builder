@@ -2,11 +2,12 @@
 //  (C) Copyright 2011-2012 Luis Cabral.
 //
 // ==UserScript==
-// @name        GC Profile Stats Builder test
-// @description Generates a profile with statistics that you can past into your profile
+// @name	GC Profile Stats Builder
+// @description	Generates statistics that you can past into your profile.
 // @include http://www.geocaching.com/*
 // @license     MIT License; http://www.opensource.org/licenses/mit-license.php
-// @version 0.73
+// @version 0.86
+// @icon http://s18.postimage.org/za0ncpqk5/gcpsb.png
 // @require http://github.com/sizzlemctwizzle/GM_config/raw/master/gm_config.js
 // @require http://userscripts.org/scripts/source/50018.user.js
 // ==/UserScript==
@@ -15,6 +16,30 @@
 /*
 
  CHANGE LOG
+
+ --- version 0.86
+ * Made image background transparent.
+
+ --- version 0.85
+ * Finally got it back in shape.
+
+ --- version 0.84
+ * The last version was also trashed. :-(
+ * Something went horribly wrong during the 0.81/82 updates.
+
+ --- version 0.83
+ * The last version was trashed. :-(
+
+ --- version 0.82
+ * Fixed icon. :-(
+
+ --- version 0.81
+ * Added icon.
+
+ --- version 0.8
+ * Temporary release until Luis reappears.
+ * Fixed date formats.
+ * Added config. dialogue.
 
  --- version 0.74
  * Added the ability to display stats regardless of the date format selected on geocaching.com.
@@ -90,8 +115,7 @@
  ---
 */
 
-
-var version= "0.74";
+var version= "0.86";
 var SUC_script_num = 106499;
 
 // Configuration dialogue.
@@ -741,8 +765,6 @@ country2iso3166["Afghanistan"]="AF";country2iso3166["Aland Islands"]="AX";countr
 //fix for us states that are shown as countries
 var usStates = new Array('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'District of Columbia', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming');
 
-var dateFmt;
-
 //=============================
 // finally the execution starts
 //=============================
@@ -756,3 +778,4 @@ initStats();
  alert(e)
 }
 updateCheck(forced);
+
