@@ -606,7 +606,7 @@ function today(){
 //Only places on the log page
 function setPlacer(divName, divStyle){
     if(!divStyle)
-        divStyle = 'width:60%;position:absolute;left:100px;top:100px;border:3px solid #CCCCCC;background-color:#FFFFFF;padding:10px;margin:20px;display:none';
+        divStyle = 'width:60%;position:absolute;left:100px;top:100px;border:3px solid #CCCCCC;background-color:#FFFFFF;padding:10px;margin:20px;display:none;z-index:999;';
 
     placer = document.createElement('div');
     placer.setAttribute('id', divName);
