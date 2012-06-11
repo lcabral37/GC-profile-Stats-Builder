@@ -4,7 +4,9 @@
 // ==UserScript==
 // @name	GC Profile Stats Builder
 // @description Generates statistics that you can past into your profile.
-// @include http://www.geocaching.com/*
+// @include http*://www.geocaching.com/*
+// @exclude /^https?://www\.geocaching\.com/(login|about|articles)/
+// @exclude /^https?://www\.geocaching\.com/seek/sendtogps.aspx/
 // @license MIT License; http://www.opensource.org/licenses/mit-license.php
 // @version 0.87
 // @icon http://s18.postimage.org/za0ncpqk5/gcpsb.png
