@@ -12,8 +12,10 @@
 // @grant GM_setValue
 // @grant GM_log
 // @grant GM_registerMenuCommand
+// @grant GM_xmlhttpRequest
+// @grant GM_openInTab
 // @license	MIT License; http://www.opensource.org/licenses/mit-license.php
-// @version 0.92
+// @version 0.93
 // @icon http://s18.postimage.org/za0ncpqk5/gcpsb.png
 // @require http://github.com/sizzlemctwizzle/GM_config/raw/master/gm_config.js
 // ==/UserScript==
@@ -24,6 +26,9 @@
 
 // --- version 0.88.FINAL
 // * Added the final version notice.
+
+ --- version 0.93
+// * The updater was broken, too.
 
  --- version 0.92
  * Fixed failure to detect webcam caches.
@@ -151,7 +156,7 @@
 */
 
 //var version= "0.88.FINAL";
-var version= "0.92";
+var version= "0.93";
 var SUC_script_num = 131166;
 
 // Configuration dialogue.
