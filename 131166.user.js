@@ -1,5 +1,5 @@
 //
-//  (C) Copyright 2011-2012 Luis Cabral, Cryogen.
+//  (C) Copyright 2011-2014 Luis Cabral, Cryogen.
 //
 // ==UserScript==
 // @name	GC Profile Stats Builder ER
@@ -15,9 +15,10 @@
 // @grant GM_xmlhttpRequest
 // @grant GM_openInTab
 // @license	MIT License; http://www.opensource.org/licenses/mit-license.php
-// @version 0.93
+// @version 1.00
 // @icon http://s18.postimage.org/za0ncpqk5/gcpsb.png
 // @require http://github.com/sizzlemctwizzle/GM_config/raw/master/gm_config.js
+// @require     http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
 // ==/UserScript==
 
 /*
@@ -26,6 +27,13 @@
 
 // --- version 0.88.FINAL
 // * Added the final version notice.
+
+ --- version 1.00
+ * Added new and missing cache types:
+ * -Giga-Event Cache
+ * -Lab Cache
+ * Fixed breakage caused by GM 2.0 update security changes.
+ * Added a single function to deal with stats errors.
 
  --- version 0.93
 // * The updater was broken, too.
@@ -156,7 +164,7 @@
 */
 
 //var version= "0.88.FINAL";
-var version= "0.93";
+var version= "1.00";
 var SUC_script_num = 131166;
 
 // Configuration dialogue.
@@ -500,36 +508,36 @@ function drawTypes(){
   var c = 0;
 
   for (var i in cacheTypes){
-  var cacheType = cacheTypes[i];
-  if(stats[TYPE][cacheType]){
-    var odd = c % 2 ? "style='background-color:#D8D8D8'":'';
-    var v = stats[TYPE][cacheType];
-    
-    // Shorten some type names to avoid outgrowing the image width.
-    var type = cacheType;
-    if(type == 'Groundspeak Lost and Found Celebration'){
-      type = 'Lost and Found';
-    }
-    else if(type == 'Cache In Trash Out Event'){
-      type = 'CITO Event';
-    }
-    else if(type == 'Locationless (Reverse) Cache'){
-      type = 'Locationless Cache';
-    }
-    else if(type == 'Lost and Found Event Cache'){
-      type = 'Lost and Found Event';
-    }
-    else if(type == 'GPS Adventures Exhibit'){
-      type = 'GPS Adventures';
-    }
-    else if(type == 'Groundspeak Block Party'){
-      type = 'Block Party';
-    }
-    
-    chl += chd=='' ? escape(type)  : '|'+escape(type);
-    chd += chd=='' ? v : ','+v; 
-    table += "<tr " + odd + "><td><img src=" + image_site + stats[IMG][cacheType] + "><td>" + cacheType + "<td>" + v + "</tr>";
-    c++;
+	var cacheType = cacheTypes[i];
+	if(stats[TYPE][cacheType]){
+	  var odd = c % 2 ? "style='background-color:#D8D8D8'":'';
+	  var v = stats[TYPE][cacheType];
+
+	  // Shorten some type names to avoid outgrowing the image width.
+	  var type = cacheType;
+	  if(type == 'Groundspeak Lost and Found Celebration'){
+		type = 'Lost and Found';
+	  }
+	  else if(type == 'Cache In Trash Out Event'){
+		type = 'CITO Event';
+	  }
+	  else if(type == 'Locationless (Reverse) Cache'){
+		type = 'Locationless Cache';
+	  }
+	  else if(type == 'Lost and Found Event Cache'){
+		type = 'Lost and Found Event';
+	  }
+	  else if(type == 'GPS Adventures Exhibit'){
+		type = 'GPS Adventures';
+	  }
+	  else if(type == 'Groundspeak Block Party'){
+		type = 'Block Party';
+	  }
+
+	  chl += chd=='' ? escape(type)  : '|'+escape(type);
+	  chd += chd=='' ? v : ','+v; 
+	  table += "<tr " + odd + "><td><img src=" + image_site + stats[IMG][cacheType] + "><td>" + cacheType + "<td>" + v + "</tr>";
+	  c++;
     }     
   }
   table+="</table>";
@@ -593,9 +601,9 @@ function drawAchievements(){
     var all = true;
     // or only latest
     var ta = 0;
-    // total achievments
+    // total achievements
 
-    // special achievments
+    // special achievements
     te++;
     if(top['oslo220711']){
         ta++;
@@ -708,10 +716,7 @@ function drawStats(){
         drawAchievements();
         printOut(placer_div);
     } catch(e){
-        var msg = "Oops! Something appears to be broken.\n";
-        msg += "\n\tLine " + e.lineNumber + ": " + e.message + "\n\n";
-        msg += "This has never happen before.\nIf you could notify my developer, he might be able to fix me.\n Thanks for your help!";
-        alert(msg);
+		statsError(e);
     }
 }
 
@@ -725,7 +730,13 @@ function runStats(){
                 $('#' + placer_div).toggle();
                 working = false;
                 $("#gcs_button0i").attr('src', image['gcs_button0']);
-            });
+            })
+//			.fail(function(){
+//				console.log("DONE");
+//			})
+//			.always(function(){
+//				console.log("ALWAYS");
+//			});
         } else {
             if(!placer_visible)
                 drawStats();
@@ -735,11 +746,15 @@ function runStats(){
         }
         placer_visible = !placer_visible;
     } catch(e){
-        var msg = "Oops! Something appears to be broken.\n";
-        msg += "\n\tLine " + e.lineNumber + ": " + e.message + "\n\n";
-        msg += "This has never happen before.\nIf you could notify my developer, he might be able to fix me.\n Thanks for your help!";
-        alert(msg);
+		statsError(e);
     }
+}
+
+function statsError(e){
+	var msg = "Oops! Something appears to be broken.\n";
+	msg += "\n\tLine " + e.lineNumber + ": " + e.message + "\n\n";
+	msg += "This has never happened before.\nIf you could notify my developer, he might be able to fix me.\n Thanks for your help!";
+	alert(msg);
 }
 
 var isover = false;
@@ -864,6 +879,7 @@ var cacheTypes = [
   'Event Cache',
   'Letterbox Hybrid',
   'Mega-Event Cache',
+  'Giga-Event Cache',
   'Wherigo Cache',
   'Cache In Trash Out Event',
   'GPS Adventures Exhibit',
@@ -873,8 +889,9 @@ var cacheTypes = [
   'Locationless (Reverse) Cache',
   'Lost and Found Event Cache',
   'Project APE Cache',
-  'Webcam Cache'
-  ];
+  'Webcam Cache',
+  'Lab Cache'
+];
 
 //LOG action
 var logicon = [];
@@ -939,12 +956,19 @@ var usStates = new Array('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California
 //=============================
 //Enable jQuery from the page itself since it is already loaded in the native document
 try{
-
-    $ = unsafeWindow.jQuery;
+//    $ = unsafeWindow.jQuery;
+	// Avoid problems due to different versions of jQuery in this script and the target page.
+	this.$ = this.jQuery = jQuery.noConflict(true);
+	
+    // Stop the icon appearing on http(s)://www.geocaching.com/ if logged out as
+    // the metadata command can't tell whether you're logged in or not.
+    if($(".NotSignedInLinks").length > 0){
+      return false;
+    }
 
     initStats();
 } catch(e){
-    alert(e)
+    alert(e);
 }
 updateCheck(forced);
 
