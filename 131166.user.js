@@ -17,7 +17,7 @@
 // @license	MIT License; http://www.opensource.org/licenses/mit-license.php
 // @version 1.00
 // @icon http://s18.postimage.org/za0ncpqk5/gcpsb.png
-// @require http://github.com/sizzlemctwizzle/GM_config/raw/master/gm_config.js
+// @require		https://greasyfork.org/scripts/2855-gm-config/code/GM_config.js?version=9272
 // @require     http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js
 // ==/UserScript==
 
